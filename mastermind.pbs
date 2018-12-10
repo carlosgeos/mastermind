@@ -1,0 +1,15 @@
+#!/bin/bash -l
+#PBS -l nodes=2:ppn=4
+#PBS -l walltime=00:02:00
+#PBS -m abe
+#PBS -j oe
+#PBS -N Distributed_Mastermind
+#PBS -o mastermind-result.txt
+
+echo "Running job on $HOSTNAME - " $(date)
+
+module load OpenMPI
+
+cd $HOME/mastermind
+make run
+echo "Done"
