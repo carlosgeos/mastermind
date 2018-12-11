@@ -16,6 +16,6 @@ add_custom_target(${JOB_FILE} ALL DEPENDS ${PROJECT_NAME} COMMAND cp -r "../${JO
 
 add_custom_target(transfer COMMAND scp -r ../src ../include ../${JOB_FILE} ../CMakeLists.txt hydra:mastermind)
 
-add_custom_target(run COMMAND mpirun ${PROJECT_NAME})
+add_custom_target(run COMMAND mpirun ${PROJECT_NAME} DEPENDS ${PROJECT_NAME})
 
-add_custom_target(submit COMMAND qsub mastermind.pbs)
+add_custom_target(submit COMMAND qsub ${JOB_FILE} DEPENDS ${PROJECT_NAME} ${JOB_FILE})
