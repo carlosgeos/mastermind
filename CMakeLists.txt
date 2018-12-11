@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}
 	# List all source files here (only .cpp, not headers)
 	"src/main.cpp"
 	"src/master.cpp"
+	"src/mastermind.cpp"
 	"src/challenger.cpp"
 )
 

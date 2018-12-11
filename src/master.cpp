@@ -1,5 +1,6 @@
 #include <random>
 #include <iostream>
+#include <algorithm>
 #include "master.hpp"
 #include "mastermind.hpp"
 
@@ -12,14 +13,10 @@ void master_main() {
 }
 
 Guess pickRandomSolution() {
-    // Seed with a real random value, if available
-    std::random_device rd;
-    std::default_random_engine engine(rd());
-	// Create an integer distribution
-	std::uniform_int_distribution<int> uniform_dist(0, n_colors - 1);
-
-    Guess solution;
-	for (auto& color : solution)
-		color = uniform_dist(engine);
+	std::array<Color, n_colors> colors;
+	std::iota(colors.begin(), colors.end(), 0);
+    std::shuffle(colors.begin(), colors.end(), std::mt19937{std::random_device{}()});
+	Guess solution;
+    std::copy_n(colors.begin(), n_spots, solution.begin());
 	return solution;
 }
