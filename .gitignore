@@ -34,3 +34,5 @@ mastermind
 
 .DS_Store
 mastermind
+
+build/

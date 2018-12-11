@@ -10,6 +10,6 @@ echo "Running job on $HOSTNAME - " $(date)
 
 module load OpenMPI
 
-cd $HOME/mastermind
+cd $HOME/mastermind/build
 make run
 echo "Done"
