@@ -8,6 +8,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++14 -Wall -Wextra -pedantic")
 add_executable(${PROJECT_NAME}
 	# List all source files here (only .cpp, not headers)
 	"src/main.cpp"
+	"src/master.cpp"
+	"src/challenger.cpp"
 )
 
 # Copy the job (.pbs) file to build dir
