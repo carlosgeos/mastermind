@@ -36,3 +36,5 @@ mastermind
 mastermind
 
 build/
+
+.idea*
