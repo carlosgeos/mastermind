@@ -5,6 +5,6 @@
 
 void master_main();
 
-Guess pickRandomSolution();
+Guess pick_random_solution();
 
 #endif // MASTER_HPP
