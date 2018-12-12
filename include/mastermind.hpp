@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <array>
 
-constexpr static std::size_t n_colors{10};
+constexpr static int n_colors{10};
 constexpr static std::size_t n_spots{4};
 
 typedef int Color;

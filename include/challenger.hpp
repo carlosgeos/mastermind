@@ -1,6 +1,7 @@
 #ifndef CHALLENGER_HPP
 #define CHALLENGER_HPP
 
+#include <vector>
 #include "mastermind.hpp"
 
 void challenger_main(int n_challengers, int rank);

@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == 0) {
-        std::cout << "Running on " << n_processes << " processes\n";
+        std::cout << "Running on " << n_processes << " processes" << std::endl;
         master_main();
     } else {
         challenger_main(n_processes - 1, rank - 1);
