@@ -1,11 +1,19 @@
 #include <iostream>
 #include <algorithm>
+#include <mpi.h>
 #include "challenger.hpp"
 
 
 void challenger_main(int n_challengers, int rank) {
 	std::vector<Guess> search_space{get_search_space(n_challengers, rank)};
-	std::cout << "number of guesses: " << search_space.size() << std::endl;
+	std::cout << "[" << rank << "] size of search space: " << search_space.size() << std::endl;
+	bool solved{false};
+	int i{0};
+	while (i < 3) {
+		send_guess(search_space);
+		receive_evaluation(search_space);
+		++i;
+	}
 }
 
 std::vector<Guess> get_search_space(int n_challengers, int rank) {
@@ -42,7 +50,7 @@ std::vector<Guess> get_search_space(int n_challengers, int rank) {
 }
 
 
-bool is_legal(Guess guess) {
+bool is_legal(const Guess& guess) {
 	for (std::size_t i{0}; i < n_spots; ++i) {
 		for (std::size_t j{i + 1}; j < n_spots; ++j) {
 			if (guess[i] == guess[j])
@@ -50,4 +58,25 @@ bool is_legal(Guess guess) {
 		}
 	}
 	return true;
+}
+
+void send_guess(const std::vector<Guess>& search_space) {
+	if(not search_space.empty()) {
+		const Guess& guess{search_space.front()};
+		std::cout << "Sending guess ";
+		for (auto& color : guess)
+			std::cout << color << " ";
+		std::cout << std::endl;
+		MPI_Send(guess.data(), n_spots, MPI_INT, 0, 0, MPI_COMM_WORLD);
+	}
+}
+
+void receive_evaluation(std::vector<Guess>& search_space) {
+	std::array<Color, n_spots + 2> evaluation;
+	MPI_Bcast(evaluation.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
+	std::cout << "Reveived evaluation ";
+	for (auto& color : evaluation)
+		std::cout << color << " ";
+	std::cout << std::endl;
+
 }

@@ -12,10 +12,8 @@ typedef int Color;
 typedef std::array<Color, n_spots> Guess;
 
 struct Evaluation {
-	std::size_t color_only;
-	std::size_t perfect;
+	int color_only;
+	int perfect;
 };
-
-Evaluation evaluate(Guess guess, Guess solution);
 
 #endif // MASTERMIND_HPP

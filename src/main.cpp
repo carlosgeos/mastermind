@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
     if (rank == 0) {
         std::cout << "Running on " << n_processes << " processes" << std::endl;
-        master_main();
+        master_main(n_processes - 1);
     } else {
         challenger_main(n_processes - 1, rank - 1);
     }
