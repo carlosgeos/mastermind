@@ -8,6 +8,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++14 -Wall -Wextra -pedantic")
 add_executable(${PROJECT_NAME}
 	# List all source files here (only .cpp, not headers)
 	"src/main.cpp"
+	"src/master.cpp"
+	"src/mastermind.cpp"
+	"src/challenger.cpp"
 )
 
 # Copy the job (.pbs) file to build dir
@@ -16,6 +19,6 @@ add_custom_target(${JOB_FILE} ALL DEPENDS ${PROJECT_NAME} COMMAND cp -r "../${JO
 
 add_custom_target(transfer COMMAND scp -r ../src ../include ../${JOB_FILE} ../CMakeLists.txt hydra:mastermind)
 
-add_custom_target(run COMMAND mpirun ${PROJECT_NAME})
+add_custom_target(run COMMAND mpirun ${PROJECT_NAME} DEPENDS ${PROJECT_NAME})
 
-add_custom_target(submit COMMAND qsub mastermind.pbs)
+add_custom_target(submit COMMAND qsub ${JOB_FILE} DEPENDS ${PROJECT_NAME} ${JOB_FILE})

@@ -1,0 +1,21 @@
+#ifndef MASTERMIND_HPP
+#define MASTERMIND_HPP
+
+#include <cstddef>
+#include <array>
+
+constexpr static std::size_t n_colors{10};
+constexpr static std::size_t n_spots{4};
+
+typedef int Color;
+
+typedef std::array<Color, n_spots> Guess;
+
+struct Evaluation {
+	std::size_t color_only;
+	std::size_t perfect;
+};
+
+Evaluation evaluate(Guess guess, Guess solution);
+
+#endif // MASTERMIND_HPP
