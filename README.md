@@ -1,4 +1,4 @@
-![Build status](https://travis-ci.org/carlosgeos/mastermind.svg?branch=master)
+[![Build status](https://travis-ci.org/carlosgeos/mastermind.svg?branch=master)](https://travis-ci.org/carlosgeos/mastermind)
 
 # Mastermind
 
