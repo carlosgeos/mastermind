@@ -27,11 +27,9 @@ void Master::main() const {
 }
 
 Guess Master::pick_random_solution() {
-    std::array<Color, n_spots> colors;
-    std::mt19937 rng(std::random_device{}());
-    std::uniform_int_distribution<Color> randint(1, n_colors);
-    std::generate(colors.begin(), colors.end(), [&](){return randint(rng);});
-
+    std::array<Color, n_colors> colors;
+    std::iota(colors.begin(), colors.end(), 0);
+    std::shuffle(colors.begin(), colors.end(), std::mt19937{std::random_device{}()});
     Guess solution;
     std::copy_n(colors.begin(), n_spots, solution.begin());
     return solution;

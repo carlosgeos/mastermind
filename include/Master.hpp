@@ -10,7 +10,7 @@ class Master {
 public:
     /// Constructor.
     /// \param The number of challengers in total
-    explicit Master(int n_challengers);
+    Master(int n_challengers);
 
     /// Main loop of the master.
     void main() const;

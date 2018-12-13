@@ -18,8 +18,8 @@ typedef std::array<Color, n_spots> Guess;
 
 /// Data about the evaluation of a guess
 struct Evaluation {
-    /// The number of color present in both the guess and the
-    /// solution, but in different places
+    /// The number of color present in both the guess and the solution, but
+    /// in different places
     int color_only;
 
     /// The number of identical spots in the guess and the solution.
