@@ -11,10 +11,10 @@ std::vector<Guess> get_search_space(int n_challengers, int rank);
 bool is_legal(const Guess& guess);
 
 
-void send_guess(const std::vector<Guess>& search_space);
+void send_guess(const std::vector<Guess>& search_space, int rank);
 
-void receive_evaluation(std::vector<Guess>& search_space);
+bool receive_evaluation(std::vector<Guess>& search_space, int rank);
 
-bool is_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation);
+bool is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation);
 
 #endif // CHALLENGER_HPP

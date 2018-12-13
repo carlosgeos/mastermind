@@ -9,11 +9,9 @@ void challenger_main(int n_challengers, int rank) {
 	std::vector<Guess> search_space{get_search_space(n_challengers, rank)};
 	std::cout << "[" << rank << "] size of search space: " << search_space.size() << std::endl;
 	bool solved{false};
-	int i{0};
-	while (i < 3) {
-		send_guess(search_space);
-		receive_evaluation(search_space);
-		++i;
+	while (not solved) {
+		send_guess(search_space, rank);
+		solved = receive_evaluation(search_space, rank);
 	}
 }
 
@@ -25,7 +23,7 @@ std::vector<Guess> get_search_space(int n_challengers, int rank) {
 
 	std::vector<Guess> guesses;
 	Guess current;
-	std::fill(current.begin(), current.end(), 0);
+	current.fill(0);
 
 	for (std::size_t i{0}; i < max_guess; ++i) {
 		if (is_legal(current))
@@ -61,42 +59,51 @@ bool is_legal(const Guess& guess) {
 	return true;
 }
 
-void send_guess(const std::vector<Guess>& search_space) {
-	if(not search_space.empty()) {
-		const Guess& guess{search_space.front()};
-		std::cout << "Sending guess ";
-		for (auto& color : guess)
-			std::cout << color << " ";
-		std::cout << std::endl;
-		MPI_Send(guess.data(), n_spots, MPI_INT, 0, 0, MPI_COMM_WORLD);
-	}
-}
+void send_guess(const std::vector<Guess>& search_space, int rank) {
+	Guess guess;
+	// Fill with zeroes by default
+	guess.fill(0);
 
-void receive_evaluation(std::vector<Guess>& search_space) {
-	std::array<Color, n_spots + 2> evaluation_data;
-	MPI_Bcast(evaluation_data.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
-	std::cout << "Reveived evaluation ";
-	for (auto& color : evaluation_data)
+	if(not search_space.empty())
+		guess = search_space.front();
+
+	std::cout << "[" << rank << "] Sending guess ";
+	for (auto& color : guess)
 		std::cout << color << " ";
 	std::cout << std::endl;
+	MPI_Gather(guess.data(), n_spots, MPI_INT, nullptr, n_spots, MPI_INT, 0, MPI_COMM_WORLD);
+}
+
+bool receive_evaluation(std::vector<Guess>& search_space, int rank) {
+	std::array<Color, n_spots + 2> evaluation_data;
+	MPI_Bcast(evaluation_data.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
 
 	Evaluation evaluation{evaluation_data[n_spots], evaluation_data[n_spots + 1]};
 	Guess evaluated_guess;
 	std::copy_n(evaluation_data.begin(), n_spots, evaluated_guess.begin());
 
-	// Use erase and std::remove_if to filter out elements of
+	std::cout << "[" << rank << "] Reveived evaluation ";
+	for (auto& color : evaluated_guess)
+		std::cout << color << " ";
+	std::cout << " -> color_only = " << evaluation.color_only
+	          << "; perfect = " << evaluation.perfect << std::endl;
+
+	// Use erase and std::remove_if to filter out elements of the search space
+	// that are not plausible
 	search_space.erase(std::remove_if(
 				search_space.begin(),
 				search_space.end(),
-				std::bind(is_plausible, std::placeholders::_1, evaluated_guess, evaluation)),
+				std::bind(is_not_plausible, std::placeholders::_1, evaluated_guess, evaluation)),
 			search_space.end());
+
+	return false;
 }
 
-bool is_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation) {
+bool is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation) {
 	Evaluation difference{evaluate(guess, evaluated_guess)};
 	if (difference.perfect != evaluation.perfect)
 		return true;
-	else if (difference.color_only < evaluation.perfect + evaluation.color_only)
+	else if (difference.color_only != evaluation.color_only)
 		return true;
 	return false;
 }
