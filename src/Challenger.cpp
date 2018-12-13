@@ -27,7 +27,7 @@ void Challenger::set_search_space(int n_challengers) {
 
     std::vector<Guess> guesses;
     Guess current;
-    current.fill(0);
+    current.fill(1);
 
     for (std::size_t i{0}; i < max_guess; ++i) {
         if (is_legal(current))
