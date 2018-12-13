@@ -35,6 +35,7 @@ mastermind
 .DS_Store
 mastermind
 
-build/
+/build/*
+!build/.keep
 
 .idea*
