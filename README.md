@@ -1,3 +1,5 @@
+![Build status](https://travis-ci.org/carlosgeos/mastermind.svg?branch=master)
+
 # Mastermind
 
 ![Mastermind](img/mastermind.png)

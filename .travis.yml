@@ -3,4 +3,6 @@ language: cpp
 before_install:
   - test -n $CC  && unset CC
   - test -n $CXX && unset CXX
+  - sudo apt-get update
+  - sudo apt-get install -y openmpi-bin libopenmpi-dev
 script: mkdir build && cd build && cmake .. && make
