@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <functional>
 #include <mpi.h>
 #include "challenger.hpp"
 
@@ -72,11 +73,30 @@ void send_guess(const std::vector<Guess>& search_space) {
 }
 
 void receive_evaluation(std::vector<Guess>& search_space) {
-	std::array<Color, n_spots + 2> evaluation;
-	MPI_Bcast(evaluation.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
+	std::array<Color, n_spots + 2> evaluation_data;
+	MPI_Bcast(evaluation_data.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
 	std::cout << "Reveived evaluation ";
-	for (auto& color : evaluation)
+	for (auto& color : evaluation_data)
 		std::cout << color << " ";
 	std::cout << std::endl;
 
+	Evaluation evaluation{evaluation_data[n_spots], evaluation_data[n_spots + 1]};
+	Guess evaluated_guess;
+	std::copy_n(evaluation_data.begin(), n_spots, evaluated_guess.begin());
+
+	// Use erase and std::remove_if to filter out elements of
+	search_space.erase(std::remove_if(
+				search_space.begin(),
+				search_space.end(),
+				std::bind(is_plausible, std::placeholders::_1, evaluated_guess, evaluation)),
+			search_space.end());
+}
+
+bool is_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation) {
+	Evaluation difference{evaluate(guess, evaluated_guess)};
+	if (difference.perfect != evaluation.perfect)
+		return true;
+	else if (difference.color_only < evaluation.perfect + evaluation.color_only)
+		return true;
+	return false;
 }

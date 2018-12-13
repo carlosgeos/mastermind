@@ -16,4 +16,6 @@ struct Evaluation {
 	int perfect;
 };
 
+Evaluation evaluate(Guess guess, Guess solution);
+
 #endif // MASTERMIND_HPP

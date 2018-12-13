@@ -15,4 +15,6 @@ void send_guess(const std::vector<Guess>& search_space);
 
 void receive_evaluation(std::vector<Guess>& search_space);
 
+bool is_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation);
+
 #endif // CHALLENGER_HPP
