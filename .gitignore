@@ -36,6 +36,5 @@ mastermind
 mastermind
 
 /build/*
-!build/.keep
 
 .idea*
