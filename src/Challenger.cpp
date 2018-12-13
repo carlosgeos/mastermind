@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <functional>
 #include <mpi.h>
+#include "utils.hpp"
 #include "Challenger.hpp"
 
 
@@ -66,7 +67,7 @@ void Challenger::send_guess() const {
     guess.fill(0);
 
     if(not _search_space.empty())
-        guess = _search_space.front();
+        guess = pick_sample(_search_space);
 
     MPI_Gather(guess.data(), n_spots, MPI_INT, nullptr, n_spots, MPI_INT, 0, MPI_COMM_WORLD);
 }

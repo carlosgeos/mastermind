@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <mpi.h>
 #include "Master.hpp"
+#include "utils.hpp"
 #include "mastermind.hpp"
 
 Master::Master(int n_challengers):
@@ -19,11 +20,7 @@ void Master::main() const {
 
         if (not guesses.empty()) {
             // Pick a random guess
-            std::uniform_int_distribution<> dis(0, guesses.size() - 1);
-            static std::random_device rd;
-            static std::mt19937 gen(rd());
-            Guess random_guess{guesses.at(dis(gen))};
-
+            Guess random_guess{pick_sample(guesses)};
             solved = send_evaluation(random_guess);
         }
     }
