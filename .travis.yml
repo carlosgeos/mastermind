@@ -65,6 +65,4 @@ matrix:
           - clang-7
       before_script: export CXX=clang++-7 CC=clang-7 OMPI_CXX=clang++-7
 
-script: mkdir build && cd build && cmake .. && make
-
-after_success: cd build && echo "Total executable size is $(du -sh Mastermind | sed 's/Mastermind//')"
+script: ./build.sh

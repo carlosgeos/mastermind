@@ -22,3 +22,5 @@ add_custom_target(transfer COMMAND scp -r ../src ../include ../${JOB_FILE} ../CM
 add_custom_target(run COMMAND mpirun ${PROJECT_NAME} DEPENDS ${PROJECT_NAME})
 
 add_custom_target(submit COMMAND qsub ${JOB_FILE} DEPENDS ${PROJECT_NAME} ${JOB_FILE})
+
+add_custom_target(display_executable_size ALL COMMAND du -sh ${PROJECT_NAME} | sed 's/${PROJECT_NAME}//' DEPENDS ${PROJECT_NAME})
