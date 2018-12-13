@@ -18,7 +18,7 @@ void master_main(int n_challengers) {
 
 		if (not guesses.empty()) {
 			// Pick a random guess
-			std::uniform_int_distribution<> dis(0, n_challengers - 1);
+			std::uniform_int_distribution<> dis(0, guesses.size() - 1);
 		    static std::random_device rd;
 		    static std::mt19937 gen(rd());
 		    Guess random_guess{guesses.at(dis(gen))};
