@@ -2,19 +2,25 @@
 #include <iostream>
 #include <algorithm>
 #include <mpi.h>
-#include "master.hpp"
+#include "Master.hpp"
 #include "mastermind.hpp"
 
-void master_main(int n_challengers) {
-	Guess solution{pick_random_solution()};
+Master::Master(int n_challengers):
+	_n_challengers{n_challengers},
+	_solution{pick_random_solution()}
+{
+}
+
+void Master::main() const {
 	std::cout << "[M] Solution: ";
-	for (auto& color : solution)
+	for (auto& color : _solution)
 		std::cout << color << " ";
 	std::cout << std::endl;
+
 	bool solved{false};
 	while (not solved) {
 		// Receive message from all challengers
-		std::vector<Guess> guesses{receive_guesses(n_challengers)};
+		std::vector<Guess> guesses{receive_guesses()};
 
 		if (not guesses.empty()) {
 			// Pick a random guess
@@ -23,12 +29,12 @@ void master_main(int n_challengers) {
 		    static std::mt19937 gen(rd());
 		    Guess random_guess{guesses.at(dis(gen))};
 
-			solved = send_evaluation(random_guess, solution);
+			solved = send_evaluation(random_guess);
 		}
 	}
 }
 
-Guess pick_random_solution() {
+Guess Master::pick_random_solution() {
 	std::array<Color, n_colors> colors;
 	std::iota(colors.begin(), colors.end(), 0);
     std::shuffle(colors.begin(), colors.end(), std::mt19937{std::random_device{}()});
@@ -37,8 +43,8 @@ Guess pick_random_solution() {
 	return solution;
 }
 
-std::vector<Guess> receive_guesses(int n_challengers) {
-	std::vector<Guess> guesses(n_challengers + 1);
+std::vector<Guess> Master::receive_guesses() const {
+	std::vector<Guess> guesses(_n_challengers + 1);
 	Guess dummy_guess;
 	dummy_guess.fill(0);
 	// Receive guesses from all challengers
@@ -55,12 +61,13 @@ std::vector<Guess> receive_guesses(int n_challengers) {
 	return res;
 }
 
-bool send_evaluation(Guess picked_guess, Guess solution) {
-	Evaluation evaluation{evaluate(picked_guess, solution)};
+bool Master::send_evaluation(Guess picked_guess) const {
+	Evaluation evaluation{evaluate(picked_guess, _solution)};
 	std::cout << "[M] Broadcasting evaluation of ";
 	for (auto& color : picked_guess)
 		std::cout << color << " ";
-	std::cout << std::endl;
+	std::cout << " => color_only = " << evaluation.color_only
+	          << "; perfect = " << evaluation.perfect << std::endl;
 
 	// Broadcast evaluation to all challengers
 	std::array<Color, n_spots + 2> evaluation_data;

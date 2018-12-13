@@ -1,7 +1,7 @@
 #include <iostream>
 #include <mpi.h>
-#include "master.hpp"
-#include "challenger.hpp"
+#include "Master.hpp"
+#include "Challenger.hpp"
 
 int main(int argc, char *argv[]) {
     int ierr{MPI_Init(&argc, &argv)};
@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
 
     if (rank == 0) {
         std::cout << "Running on " << n_processes << " processes" << std::endl;
-        master_main(n_processes - 1);
+        Master master{n_processes - 1};
+        master.main();
     } else {
         Challenger challenger{n_processes - 1, rank - 1};
         challenger.main();

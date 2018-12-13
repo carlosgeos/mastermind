@@ -14,7 +14,7 @@ public:
 private:
 	void set_search_space(int n_challengers);
 
-	void send_guess();
+	void send_guess() const;
 
 	bool receive_evaluation();
 

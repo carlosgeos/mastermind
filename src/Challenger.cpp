@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <functional>
 #include <mpi.h>
-#include "challenger.hpp"
+#include "Challenger.hpp"
 
 
 Challenger::Challenger(int n_challengers, int rank):
@@ -62,7 +62,7 @@ bool Challenger::is_legal(const Guess& guess) {
 	return true;
 }
 
-void Challenger::send_guess() {
+void Challenger::send_guess() const {
 	Guess guess;
 	// Fill with zeroes by default
 	guess.fill(0);
@@ -84,13 +84,6 @@ bool Challenger::receive_evaluation() {
 	Evaluation evaluation{evaluation_data[n_spots], evaluation_data[n_spots + 1]};
 	Guess evaluated_guess;
 	std::copy_n(evaluation_data.begin(), n_spots, evaluated_guess.begin());
-
-
-	std::cout << "[" << _rank << "] Reveived evaluation ";
-	for (auto& color : evaluated_guess)
-		std::cout << color << " ";
-	std::cout << " -> color_only = " << evaluation.color_only
-	          << "; perfect = " << evaluation.perfect << std::endl;
 
 	if (evaluation.perfect == n_spots)
 		return true;
