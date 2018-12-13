@@ -1,8 +1,70 @@
 dist: xenial
-language: cpp
+
+language: cpp                  # avoids Travis setting automatic CXX variables
+
 before_install:
-  - test -n $CC  && unset CC
-  - test -n $CXX && unset CXX
-  - sudo apt-get update
-  - sudo apt-get install -y openmpi-bin libopenmpi-dev
+  - sudo apt update
+  - sudo apt install -y openmpi-bin libopenmpi-dev
+
+matrix:
+  include:
+    - compiler: g++
+
+    - compiler: g++-6
+      addons:
+        apt:
+          update: true
+          sources:
+          - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+          - gcc-6
+          - g++-6
+      before_script: export CXX=g++-6 CC=gcc-6 OMPI_CXX=g++-6
+
+    - compiler: g++-7
+      addons:
+        apt:
+          update: true
+          sources:
+          - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+          - gcc-7
+          - g++-7
+      before_script: export CXX=g++-7 CC=gcc-7 OMPI_CXX=g++-7
+
+    - compiler: g++-8
+      addons:
+        apt:
+          update: true
+          sources:
+          - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+          - gcc-8
+          - g++-8
+      before_script: export CXX=g++-8 CC=gcc-8 OMPI_CXX=g++-8
+
+    - compiler: clang++-6.0
+      addons:
+        apt:
+          update: true
+          sources:
+          - sourceline: 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+          - clang-6.0
+      before_script: export CXX=clang++-6.0 CC=clang-6.0 OMPI_CXX=clang++-6.0
+
+    - compiler: clang++-7
+      addons:
+        apt:
+          update: true
+          sources:
+          - sourceline: 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main'
+            key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+          - clang-7
+      before_script: export CXX=clang++-7 CC=clang-7 OMPI_CXX=clang++-7
+
 script: mkdir build && cd build && cmake .. && make
+
+after_success: cd build && echo "Total executable size is $(du -sh Mastermind | sed 's/Mastermind//')"
