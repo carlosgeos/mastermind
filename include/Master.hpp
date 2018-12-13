@@ -7,19 +7,19 @@
 class Master {
 
 public:
-	Master(int n_challengers);
+    Master(int n_challengers);
 
-	void main() const;
+    void main() const;
 
 private:
-	static Guess pick_random_solution();
+    static Guess pick_random_solution();
 
-	std::vector<Guess> receive_guesses() const;
+    std::vector<Guess> receive_guesses() const;
 
-	bool send_evaluation(Guess picked_guess) const;
+    bool send_evaluation(Guess picked_guess) const;
 
-	const int _n_challengers;
-	const Guess _solution;
+    const int _n_challengers;
+    const Guess _solution;
 };
 
 #endif // MASTER_HPP

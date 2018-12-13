@@ -12,8 +12,8 @@ typedef int Color;
 typedef std::array<Color, n_spots> Guess;
 
 struct Evaluation {
-	int color_only;
-	int perfect;
+    int color_only;
+    int perfect;
 };
 
 Evaluation evaluate(Guess guess, Guess solution);
