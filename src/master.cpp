@@ -38,18 +38,16 @@ Guess pick_random_solution() {
 }
 
 std::vector<Guess> receive_guesses(int n_challengers) {
-	std::vector<Color> colors((n_challengers + 1) * n_spots);
+	std::vector<Guess> guesses(n_challengers + 1);
 	Guess dummy_guess;
 	dummy_guess.fill(0);
-	// Receive guess colors from all challengers
-	MPI_Gather(dummy_guess.data(), n_spots, MPI_INT, colors.data(), n_spots, MPI_INT, 0, MPI_COMM_WORLD);
+	// Receive guesses from all challengers
+	MPI_Gather(dummy_guess.data(), n_spots, MPI_INT, guesses.data(), n_spots, MPI_INT, 0, MPI_COMM_WORLD);
 
 	// Transform into guesses, filtering out zero guesses (meaning the search
 	// space of the challenger is empty)
 	std::vector<Guess> res;
-	for(int i{0}; i < n_challengers + 1; ++i) {
-		Guess guess;
-		std::copy_n(colors.begin() + (i * n_spots), n_spots, guess.begin());
+	for(const auto& guess : guesses) {
 		// If the guess is not all zeroes
 		if (std::count(guess.begin(), guess.end(), 0) != n_spots)
 			res.push_back(guess);
