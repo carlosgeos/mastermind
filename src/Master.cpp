@@ -12,11 +12,6 @@ Master::Master(int n_challengers):
 }
 
 void Master::main() const {
-    std::cout << "[M] Solution: ";
-    for (auto& color : _solution)
-        std::cout << color << " ";
-    std::cout << std::endl;
-
     bool solved{false};
     while (not solved) {
         // Receive message from all challengers
@@ -66,8 +61,8 @@ bool Master::send_evaluation(Guess picked_guess) const {
     std::cout << "[M] Broadcasting evaluation of ";
     for (auto& color : picked_guess)
         std::cout << color << " ";
-    std::cout << " => color_only = " << evaluation.color_only
-              << "; perfect = " << evaluation.perfect << std::endl;
+    std::cout << "\n * color_only = " << evaluation.color_only
+              << "\n * perfect    = " << evaluation.perfect << std::endl;
 
     // Broadcast evaluation to all challengers
     std::array<Color, n_spots + 2> evaluation_data;

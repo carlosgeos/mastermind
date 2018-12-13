@@ -1,4 +1,3 @@
-#include <iostream>
 #include <algorithm>
 #include <functional>
 #include <mpi.h>
@@ -12,7 +11,6 @@ Challenger::Challenger(int n_challengers, int rank):
 }
 
 void Challenger::main() {
-    std::cout << "[" << _rank << "] size of search space: " << _search_space.size() << std::endl;
     bool solved{false};
     while (not solved) {
         send_guess();
@@ -70,10 +68,6 @@ void Challenger::send_guess() const {
     if(not _search_space.empty())
         guess = _search_space.front();
 
-    std::cout << "[" << _rank << "] Sending guess ";
-    for (auto& color : guess)
-        std::cout << color << " ";
-    std::cout << std::endl;
     MPI_Gather(guess.data(), n_spots, MPI_INT, nullptr, n_spots, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
@@ -101,9 +95,6 @@ bool Challenger::receive_evaluation() {
 
 bool Challenger::is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation) {
     Evaluation difference{evaluate(guess, evaluated_guess)};
-    if (difference.perfect != evaluation.perfect)
-        return true;
-    else if (difference.color_only != evaluation.color_only)
-        return true;
-    return false;
+    return difference.perfect != evaluation.perfect
+            or difference.color_only != evaluation.color_only;
 }
