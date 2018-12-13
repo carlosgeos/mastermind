@@ -4,17 +4,26 @@
 #include <vector>
 #include "mastermind.hpp"
 
-void challenger_main(int n_challengers, int rank);
+class Challenger {
 
-std::vector<Guess> get_search_space(int n_challengers, int rank);
+public:
+	Challenger(int n_challengers, int rank);
 
-bool is_legal(const Guess& guess);
+	void main();
 
+private:
+	void set_search_space(int n_challengers);
 
-void send_guess(const std::vector<Guess>& search_space, int rank);
+	void send_guess();
 
-bool receive_evaluation(std::vector<Guess>& search_space, int rank);
+	bool receive_evaluation();
 
-bool is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation);
+	static bool is_legal(const Guess& guess);
+
+	static bool is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation);
+
+	const int _rank;
+	std::vector<Guess> _search_space;
+};
 
 #endif // CHALLENGER_HPP

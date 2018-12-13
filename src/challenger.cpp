@@ -5,17 +5,22 @@
 #include "challenger.hpp"
 
 
-void challenger_main(int n_challengers, int rank) {
-	std::vector<Guess> search_space{get_search_space(n_challengers, rank)};
-	std::cout << "[" << rank << "] size of search space: " << search_space.size() << std::endl;
+Challenger::Challenger(int n_challengers, int rank):
+	_rank{rank}
+{
+	set_search_space(n_challengers);
+}
+
+void Challenger::main() {
+	std::cout << "[" << _rank << "] size of search space: " << _search_space.size() << std::endl;
 	bool solved{false};
 	while (not solved) {
-		send_guess(search_space, rank);
-		solved = receive_evaluation(search_space, rank);
+		send_guess();
+		solved = receive_evaluation();
 	}
 }
 
-std::vector<Guess> get_search_space(int n_challengers, int rank) {
+void Challenger::set_search_space(int n_challengers) {
 	std::size_t max_guess{1};
 	for (std::size_t i{0}; i < n_spots; ++i) {
 		max_guess *= n_colors;
@@ -38,18 +43,16 @@ std::vector<Guess> get_search_space(int n_challengers, int rank) {
 	}
 
 	std::size_t space_size{guesses.size() / n_challengers};
-	std::vector<Guess> search_space(
-			guesses.begin() + (rank * space_size),
-			guesses.begin() + std::min((rank + 1) * space_size, guesses.size()));
+	_search_space.assign(
+			guesses.begin() + (_rank * space_size),
+			guesses.begin() + std::min((_rank + 1) * space_size, guesses.size()));
 
-	if (rank == n_challengers - 1)
-		search_space.insert(search_space.end(), guesses.end() - guesses.size() % n_challengers, guesses.end());
-
-	return search_space;
+	if (_rank == n_challengers - 1)
+		_search_space.insert(_search_space.end(), guesses.end() - guesses.size() % n_challengers, guesses.end());
 }
 
 
-bool is_legal(const Guess& guess) {
+bool Challenger::is_legal(const Guess& guess) {
 	for (std::size_t i{0}; i < n_spots; ++i) {
 		for (std::size_t j{i + 1}; j < n_spots; ++j) {
 			if (guess[i] == guess[j])
@@ -59,22 +62,22 @@ bool is_legal(const Guess& guess) {
 	return true;
 }
 
-void send_guess(const std::vector<Guess>& search_space, int rank) {
+void Challenger::send_guess() {
 	Guess guess;
 	// Fill with zeroes by default
 	guess.fill(0);
 
-	if(not search_space.empty())
-		guess = search_space.front();
+	if(not _search_space.empty())
+		guess = _search_space.front();
 
-	std::cout << "[" << rank << "] Sending guess ";
+	std::cout << "[" << _rank << "] Sending guess ";
 	for (auto& color : guess)
 		std::cout << color << " ";
 	std::cout << std::endl;
 	MPI_Gather(guess.data(), n_spots, MPI_INT, nullptr, n_spots, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
-bool receive_evaluation(std::vector<Guess>& search_space, int rank) {
+bool Challenger::receive_evaluation() {
 	std::array<Color, n_spots + 2> evaluation_data;
 	MPI_Bcast(evaluation_data.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -83,7 +86,7 @@ bool receive_evaluation(std::vector<Guess>& search_space, int rank) {
 	std::copy_n(evaluation_data.begin(), n_spots, evaluated_guess.begin());
 
 
-	std::cout << "[" << rank << "] Reveived evaluation ";
+	std::cout << "[" << _rank << "] Reveived evaluation ";
 	for (auto& color : evaluated_guess)
 		std::cout << color << " ";
 	std::cout << " -> color_only = " << evaluation.color_only
@@ -91,19 +94,19 @@ bool receive_evaluation(std::vector<Guess>& search_space, int rank) {
 
 	if (evaluation.perfect == n_spots)
 		return true;
-		
+
 	// Use erase and std::remove_if to filter out elements of the search space
 	// that are not plausible
-	search_space.erase(std::remove_if(
-				search_space.begin(),
-				search_space.end(),
+	_search_space.erase(std::remove_if(
+				_search_space.begin(),
+				_search_space.end(),
 				std::bind(is_not_plausible, std::placeholders::_1, evaluated_guess, evaluation)),
-			search_space.end());
+			_search_space.end());
 
 	return false;
 }
 
-bool is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation) {
+bool Challenger::is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation) {
 	Evaluation difference{evaluate(guess, evaluated_guess)};
 	if (difference.perfect != evaluation.perfect)
 		return true;

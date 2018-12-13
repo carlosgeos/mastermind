@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
         std::cout << "Running on " << n_processes << " processes" << std::endl;
         master_main(n_processes - 1);
     } else {
-        challenger_main(n_processes - 1, rank - 1);
+        Challenger challenger{n_processes - 1, rank - 1};
+        challenger.main();
     }
 
     MPI_Finalize();
