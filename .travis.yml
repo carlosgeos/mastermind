@@ -8,7 +8,7 @@ before_install:
 
 matrix:
   include:
-    - compiler: g++
+    - compiler: g++-5            # default in Travis with Xenial
 
     - compiler: g++-6
       addons:
