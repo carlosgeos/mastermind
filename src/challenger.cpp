@@ -82,12 +82,16 @@ bool receive_evaluation(std::vector<Guess>& search_space, int rank) {
 	Guess evaluated_guess;
 	std::copy_n(evaluation_data.begin(), n_spots, evaluated_guess.begin());
 
+
 	std::cout << "[" << rank << "] Reveived evaluation ";
 	for (auto& color : evaluated_guess)
 		std::cout << color << " ";
 	std::cout << " -> color_only = " << evaluation.color_only
 	          << "; perfect = " << evaluation.perfect << std::endl;
 
+	if (evaluation.perfect == n_spots)
+		return true;
+		
 	// Use erase and std::remove_if to filter out elements of the search space
 	// that are not plausible
 	search_space.erase(std::remove_if(
