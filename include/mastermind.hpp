@@ -2,7 +2,7 @@
 #define MASTERMIND_HPP
 
 #include <cstddef>
-#include <array>
+#include <vector>
 
 /// A color is just represented by an int.
 typedef int Color;
