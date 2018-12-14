@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#PBS -l nodes=2:ppn=1,mem=10gb
+#PBS -l nodes=2:ppn=4,mem=2gb
 #PBS -l walltime=01:00:00
 #PBS -m abe
 #PBS -j oe
@@ -16,5 +16,5 @@ cd $HOME/mastermind
 rm -rf build
 ./build.sh
 cd build
-mpirun Mastermind 10 9
+mpirun Mastermind 10 10
 echo "Done"
