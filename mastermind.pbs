@@ -5,6 +5,7 @@
 #PBS -j oe
 #PBS -N Distributed_Mastermind
 #PBS -o mastermind-result.txt
+#PBS -e mastermind-error.txt
 
 echo "Running job on $HOSTNAME - " $(date)
 
