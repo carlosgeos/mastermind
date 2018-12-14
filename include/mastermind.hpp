@@ -7,14 +7,8 @@
 /// A color is just represented by an int.
 typedef int Color;
 
-/// The number of different colors
-constexpr static Color n_colors{10};
-
-/// The number of spots in a solution or guess
-constexpr static std::size_t n_spots{4};
-
 /// Holds a guess or a solution
-typedef std::array<Color, n_spots> Guess;
+typedef std::vector<Color> Guess;
 
 /// Data about the evaluation of a guess
 struct Evaluation {
@@ -27,6 +21,6 @@ struct Evaluation {
 };
 
 /// Evaluates a guess given the real solution.
-Evaluation evaluate(Guess guess, Guess solution);
+Evaluation evaluate(const Guess& guess, const Guess& solution);
 
 #endif // MASTERMIND_HPP

@@ -5,7 +5,9 @@
 #include "Challenger.hpp"
 
 
-Challenger::Challenger(int n_challengers, int rank):
+Challenger::Challenger(Color n_colors, std::size_t n_spots, int n_challengers, int rank):
+    _n_colors{n_colors},
+    _n_spots{n_spots},
     _rank{rank}
 {
     set_search_space(n_challengers);
@@ -21,20 +23,19 @@ void Challenger::main() {
 
 void Challenger::set_search_space(int n_challengers) {
     std::size_t max_guess{1};
-    for (std::size_t i{0}; i < n_spots; ++i) {
-        max_guess *= n_colors;
+    for (std::size_t i{0}; i < _n_spots; ++i) {
+        max_guess *= _n_colors;
     }
 
     std::vector<Guess> guesses;
-    Guess current;
-    current.fill(0);
+    Guess current(_n_spots, 0);
 
     for (std::size_t i{0}; i < max_guess; ++i) {
         if (is_legal(current))
             guesses.push_back(current);
-        current[n_spots - 1] += 1;
-        std::size_t carry{n_spots - 1};
-        while (current[carry] >= n_colors and carry > 0) {
+        current[_n_spots - 1] += 1;
+        std::size_t carry{_n_spots - 1};
+        while (current[carry] >= _n_colors and carry > 0) {
             current[carry] = 0;
             --carry;
             current[carry] += 1;
@@ -52,8 +53,8 @@ void Challenger::set_search_space(int n_challengers) {
 
 
 bool Challenger::is_legal(const Guess& guess) {
-    for (std::size_t i{0}; i < n_spots; ++i) {
-        for (std::size_t j{i + 1}; j < n_spots; ++j) {
+    for (std::size_t i{0}; i < guess.size(); ++i) {
+        for (std::size_t j{i + 1}; j < guess.size(); ++j) {
             if (guess[i] == guess[j])
                 return false;
         }
@@ -62,25 +63,23 @@ bool Challenger::is_legal(const Guess& guess) {
 }
 
 void Challenger::send_guess() const {
-    Guess guess;
     // Fill with zeroes by default
-    guess.fill(0);
+    Guess guess(_n_spots, 0);
 
     if(not _search_space.empty())
         guess = pick_sample(_search_space);
 
-    MPI_Gather(guess.data(), n_spots, MPI_INT, nullptr, n_spots, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(guess.data(), _n_spots, MPI_INT, nullptr, _n_spots, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 bool Challenger::receive_evaluation() {
-    std::array<Color, n_spots + 2> evaluation_data;
-    MPI_Bcast(evaluation_data.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
+    std::vector<Color> evaluation_data(_n_spots + 2);
+    MPI_Bcast(evaluation_data.data(), _n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
 
-    Evaluation evaluation{evaluation_data[n_spots], evaluation_data[n_spots + 1]};
-    Guess evaluated_guess;
-    std::copy_n(evaluation_data.begin(), n_spots, evaluated_guess.begin());
+    Evaluation evaluation{evaluation_data[_n_spots], evaluation_data[_n_spots + 1]};
+    Guess evaluated_guess(evaluation_data.begin(), evaluation_data.begin() + _n_spots);
 
-    if (evaluation.perfect == n_spots)
+    if (evaluation.perfect == static_cast<int>(_n_spots))
         return true;
 
     // Use erase and std::remove_if to filter out elements of the search space

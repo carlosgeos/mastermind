@@ -12,7 +12,7 @@ public:
     /// \param The number of challengers in total
     /// \param rank The rank of this challenger, starting from zero (thus not
     /// counting the master).
-    Challenger(int n_challengers, int rank);
+    Challenger(Color n_colors, std::size_t n_spots, int n_challengers, int rank);
 
     /// Main loop function.
     void main();
@@ -41,6 +41,12 @@ private:
     /// evaluated_guess. We consider that the guess is not plausible if its
     /// evaluation with evaluated_guess is different from the given evaluation.
     static bool is_not_plausible(const Guess& guess, const Guess& evaluated_guess, const Evaluation& evaluation);
+
+    /// The number of different colors
+    const Color _n_colors{10};
+
+    /// The number of spots in a solution or guess
+    const std::size_t _n_spots{4};
 
     /// The rank of this challenger, starting from zero.
     const int _rank;

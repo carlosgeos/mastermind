@@ -12,11 +12,14 @@ int main(int argc, char *argv[]) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    Color n_colors{10};
+    std::size_t n_spots{4};
+
     if (rank == 0) {
-        Master master{n_processes - 1};
+        Master master{n_colors, n_spots, n_processes - 1};
         master.main();
     } else {
-        Challenger challenger{n_processes - 1, rank - 1};
+        Challenger challenger{n_colors, n_spots, n_processes - 1, rank - 1};
         challenger.main();
     }
 

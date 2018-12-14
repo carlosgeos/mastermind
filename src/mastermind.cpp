@@ -1,9 +1,9 @@
 #include <algorithm>
 #include "mastermind.hpp"
 
-Evaluation evaluate(Guess guess, Guess solution) {
+Evaluation evaluate(const Guess& guess, const Guess& solution) {
     Evaluation result{0, 0};
-    for (std::size_t i{0}; i < n_spots; ++i) {
+    for (std::size_t i{0}; i < guess.size(); ++i) {
         // If the guess had it right at the spot
         if (guess[i] == solution[i])
             ++result.perfect;

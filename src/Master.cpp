@@ -6,7 +6,9 @@
 #include "utils.hpp"
 #include "mastermind.hpp"
 
-Master::Master(int n_challengers):
+Master::Master(Color n_colors, std::size_t n_spots, int n_challengers):
+    _n_colors{n_colors},
+    _n_spots{n_spots},
     _n_challengers{n_challengers},
     _solution{pick_random_solution()}
 {
@@ -27,33 +29,31 @@ void Master::main() const {
 }
 
 Guess Master::pick_random_solution() {
-    std::array<Color, n_colors> colors;
+    std::vector<Color> colors(_n_colors);
     std::iota(colors.begin(), colors.end(), 0);
     std::shuffle(colors.begin(), colors.end(), std::mt19937{std::random_device{}()});
-    Guess solution;
-    std::copy_n(colors.begin(), n_spots, solution.begin());
+    Guess solution(colors.begin(), colors.begin() + _n_spots);
     return solution;
 }
 
 std::vector<Guess> Master::receive_guesses() const {
     std::vector<Guess> guesses(_n_challengers + 1);
-    Guess dummy_guess;
-    dummy_guess.fill(0);
+    Guess dummy_guess(_n_spots, 0);
     // Receive guesses from all challengers
-    MPI_Gather(dummy_guess.data(), n_spots, MPI_INT, guesses.data(), n_spots, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(dummy_guess.data(), _n_spots, MPI_INT, guesses.data(), _n_spots, MPI_INT, 0, MPI_COMM_WORLD);
 
     // Transform into guesses, filtering out zero guesses (meaning the search
     // space of the challenger is empty)
     std::vector<Guess> res;
     for(const auto& guess : guesses) {
         // If the guess is not all zeroes
-        if (std::count(guess.begin(), guess.end(), 0) != n_spots)
+        if (std::count(guess.begin(), guess.end(), 0) != static_cast<int>(_n_spots))
             res.push_back(guess);
     }
     return res;
 }
 
-bool Master::send_evaluation(Guess picked_guess) const {
+bool Master::send_evaluation(const Guess& picked_guess) const {
     Evaluation evaluation{evaluate(picked_guess, _solution)};
     std::cout << "[M] Broadcasting evaluation of ";
     for (auto& color : picked_guess)
@@ -62,11 +62,10 @@ bool Master::send_evaluation(Guess picked_guess) const {
               << "\n * perfect    = " << evaluation.perfect << std::endl;
 
     // Broadcast evaluation to all challengers
-    std::array<Color, n_spots + 2> evaluation_data;
-    std::copy(picked_guess.begin(), picked_guess.end(), evaluation_data.begin());
-    evaluation_data[n_spots] = evaluation.color_only;
-    evaluation_data[n_spots + 1] = evaluation.perfect;
-    MPI_Bcast(evaluation_data.data(), n_spots + 2, MPI_INT, 0, MPI_COMM_WORLD);
+    std::vector<Color> evaluation_data(picked_guess.begin(), picked_guess.end());
+    evaluation_data.push_back(evaluation.color_only);
+    evaluation_data.push_back(evaluation.perfect);
+    MPI_Bcast(evaluation_data.data(), evaluation_data.size(), MPI_INT, 0, MPI_COMM_WORLD);
 
-    return evaluation.perfect == n_spots;
+    return evaluation.perfect == static_cast<int>(_n_spots);
 }
