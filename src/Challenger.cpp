@@ -1,3 +1,4 @@
+#include <iostream>
 #include <algorithm>
 #include <functional>
 #include <mpi.h>
@@ -17,7 +18,9 @@ void Challenger::main() {
     bool solved{false};
     while (not solved) {
         send_guess();
+        std::cout << _rank << ": search space size " << _search_space.size() << std::endl;
         solved = receive_evaluation();
+
     }
 }
 

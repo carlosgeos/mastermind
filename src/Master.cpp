@@ -16,6 +16,7 @@ Master::Master(Color n_colors, std::size_t n_spots, int n_challengers):
 
 void Master::main() const {
     bool solved{false};
+    int i{0};
     while (not solved) {
         // Receive message from all challengers
         std::vector<Guess> guesses{receive_guesses()};
@@ -25,7 +26,9 @@ void Master::main() const {
             Guess random_guess{pick_sample(guesses)};
             solved = send_evaluation(random_guess);
         }
+        i++;
     }
+    std::cout << "Turns played: " << i << std::endl;
 }
 
 Guess Master::pick_random_solution() {
@@ -33,19 +36,22 @@ Guess Master::pick_random_solution() {
     std::iota(colors.begin(), colors.end(), 0);
     std::shuffle(colors.begin(), colors.end(), std::mt19937{std::random_device{}()});
     Guess solution(colors.begin(), colors.begin() + _n_spots);
+
+
     return solution;
 }
 
 std::vector<Guess> Master::receive_guesses() const {
-    std::vector<Guess> guesses(_n_challengers + 1);
+    std::vector<Color> colors((_n_challengers + 1) * _n_spots);
     Guess dummy_guess(_n_spots, 0);
     // Receive guesses from all challengers
-    MPI_Gather(dummy_guess.data(), _n_spots, MPI_INT, guesses.data(), _n_spots, MPI_INT, 0, MPI_COMM_WORLD);
-
+    MPI_Gather(dummy_guess.data(), _n_spots, MPI_INT, colors.data(), _n_spots, MPI_INT, 0, MPI_COMM_WORLD);
     // Transform into guesses, filtering out zero guesses (meaning the search
     // space of the challenger is empty)
     std::vector<Guess> res;
-    for(const auto& guess : guesses) {
+    for(int i{0}; i < _n_challengers + 1; ++i) {
+        Guess guess;
+        std::copy_n(colors.begin() + (i * _n_spots), _n_spots, std::back_inserter(guess));
         // If the guess is not all zeroes
         if (std::count(guess.begin(), guess.end(), 0) != static_cast<int>(_n_spots))
             res.push_back(guess);
@@ -55,6 +61,7 @@ std::vector<Guess> Master::receive_guesses() const {
 
 bool Master::send_evaluation(const Guess& picked_guess) const {
     Evaluation evaluation{evaluate(picked_guess, _solution)};
+    std::cout << "Sending" << "\n";
     std::cout << "[M] Broadcasting evaluation of ";
     for (auto& color : picked_guess)
         std::cout << color << " ";

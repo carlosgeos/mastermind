@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#PBS -l nodes=2:ppn=4
+#PBS -l nodes=2:ppn=1
 #PBS -l walltime=00:02:00
 #PBS -m abe
 #PBS -j oe
@@ -12,5 +12,5 @@ module load CMake
 module load OpenMPI
 
 cd $HOME/mastermind/build
-make run
+mpirun Mastermind 10 9
 echo "Done"
